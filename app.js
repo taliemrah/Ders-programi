@@ -137,7 +137,7 @@
     const tabs = [['program', 'Program'], ['teachers', 'Öğretmenler'], ['groups', 'Gruplar'], ['lessons', 'Dersler'], ['settings', 'Ayarlar']];
     app.innerHTML = `
       <header class="topbar">
-        <h1>Ders Programı</h1>
+        <h1>ETALIX Ders Programı</h1>
         <div class="sub">${esc(state.settings.institution || '')} · ${state.teachers.length} öğretmen · ${state.groups.length} grup · ${state.lessons.reduce((a, l) => a + (+l.hours || 0), 0)} ders saati</div>
         <nav class="tabs">${tabs.map(([k, n]) => `<button class="tab ${ui.tab === k ? 'on' : ''}" data-act="tab" data-v="${k}">${n}</button>`).join('')}</nav>
       </header>
@@ -577,7 +577,7 @@
         }
         h += '</tr>';
       }
-      return h + '</tbody></table><div class="pmade">Made by Emrah Tali</div></div>';
+      return h + '</tbody></table><div class="pmade">ETALIX Ders Programı · Made by Emrah Tali</div></div>';
     };
     let html = '';
     if (kind === 'one') {

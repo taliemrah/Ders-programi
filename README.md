@@ -1,4 +1,4 @@
-# Ders Programı
+# ETALIX Ders Programı
 
 Dershane için öğretmen ders programı oluşturucu. Satış amaçlı değildir.
 
