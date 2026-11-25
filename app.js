@@ -57,6 +57,14 @@
     el.textContent = ui.toast.msg;
   }
 
+  /* Kendi onay penceremiz (tarayıcı confirm'ü bazı yerlerde engelli) */
+  let pendingYes = null;
+  function ask(msg, onYes, yesLabel = 'Evet') {
+    pendingYes = onYes;
+    ui.modal = { html: `<h2>Emin misin?</h2><p>${esc(msg)}</p><div class="foot"><button type="button" class="btn" data-act="closeModal">Vazgeç</button><button type="button" class="btn primary" data-act="askYes">${esc(yesLabel)}</button></div>` };
+    render();
+  }
+
   function markStale() { if (state.schedule) state.schedule.stale = true; }
   function commit(stale = true) { if (stale) markStale(); save(); render(); }
 
@@ -595,8 +603,9 @@
     },
     unlockAll: () => { placements().forEach((p) => { p.locked = false; }); save(); render(); toast('Sabitlemeler kaldırıldı.'); },
     print: (el) => printPages(el.dataset.v),
-    sample: () => { if (state.lessons.length && !confirm('Mevcut verilerin yerine örnek veriler yüklensin mi?')) return; state = DP.sampleState(); ui.tab = 'program'; save(); render(); toast('Örnek veriler yüklendi.', 'ok'); },
-    wipe: () => { if (!confirm('Tüm öğretmen, grup, ders ve program silinsin mi? Ayarlar kalır.')) return; state = Object.assign(DP.emptyState(), { settings: state.settings }); save(); render(); toast('Veriler silindi.'); },
+    sample: () => { const go = () => { state = DP.sampleState(); ui.modal = null; ui.tab = 'program'; save(); render(); toast('Örnek veriler yüklendi.', 'ok'); runSolve(); }; if (state.lessons.length) ask('Mevcut verilerin yerine örnek veriler yüklensin mi?', go); else go(); },
+    askYes: () => { const f = pendingYes; pendingYes = null; ui.modal = null; if (f) f(); else render(); },
+    wipe: () => ask('Tüm öğretmen, grup, ders ve program silinsin mi? Ayarlar kalır.', () => { state = Object.assign(DP.emptyState(), { settings: state.settings }); save(); render(); toast('Veriler silindi.'); }, 'Sil'),
     export: () => {
       const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
@@ -610,40 +619,46 @@
     toggleBlock: (el) => el.classList.toggle('off'),
     delTeacher: (el) => {
       const t = teacher(el.dataset.id); const n = state.lessons.filter((l) => l.teacherId === t.id).length;
-      if (!confirm(`${t.name} silinsin mi?${n ? ` Ona bağlı ${n} ders de silinecek.` : ''}`)) return;
+      ask(`${t.name} silinsin mi?${n ? ` Ona bağlı ${n} ders de silinecek.` : ''}`, () => {
       state.teachers = state.teachers.filter((x) => x.id !== t.id);
       const ids = new Set(state.lessons.filter((l) => l.teacherId === t.id).map((l) => l.id));
       state.lessons = state.lessons.filter((l) => !ids.has(l.id));
       if (state.schedule) state.schedule.placements = state.schedule.placements.filter((p) => !ids.has(p.lessonId));
       commit();
+      }, 'Sil');
     },
     editGroup: (el) => { ui.modal = { html: groupModal(el.dataset.id) }; render(); },
     saveGroup: (el) => saveGroup(el.dataset.id),
     delGroup: (el) => {
       const g = group(el.dataset.id); const n = state.lessons.filter((l) => l.groupId === g.id).length;
-      if (!confirm(`${g.name} silinsin mi?${n ? ` ${n} dersi de silinecek.` : ''}`)) return;
+      ask(`${g.name} silinsin mi?${n ? ` ${n} dersi de silinecek.` : ''}`, () => {
       state.groups = state.groups.filter((x) => x.id !== g.id);
       const ids = new Set(state.lessons.filter((l) => l.groupId === g.id).map((l) => l.id));
       state.lessons = state.lessons.filter((l) => !ids.has(l.id));
       if (state.schedule) state.schedule.placements = state.schedule.placements.filter((p) => !ids.has(p.lessonId));
       commit();
+      }, 'Sil');
     },
     goLessons: (el) => { ui.tab = 'lessons'; render(); const t = document.getElementById('g-' + el.dataset.id); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'center' }); },
     editLesson: (el) => { ui.modal = { html: lessonModal(el.dataset.id, el.dataset.group) }; render(); },
     saveLesson: (el) => saveLesson(el.dataset.id),
     delLesson: (el) => {
-      const l = lesson(el.dataset.id); if (!confirm(`${group(l.groupId).name} – ${l.subject} dersi silinsin mi?`)) return;
+      const l = lesson(el.dataset.id);
+      ask(`${group(l.groupId).name} – ${l.subject} dersi silinsin mi?`, () => {
       state.lessons = state.lessons.filter((x) => x.id !== l.id);
       if (state.schedule) state.schedule.placements = state.schedule.placements.filter((p) => p.lessonId !== l.id);
       commit();
+      }, 'Sil');
     },
     saveSettings: () => { readSettingsForm(); commit(); toast('Ayarlar kaydedildi.', 'ok'); },
     addSlot: (el) => { readSettingsForm(); const arr = state.settings.slots[el.dataset.kind]; const last = arr[arr.length - 1]; arr.push({ start: last ? last.end : '09:00', end: last ? last.end : '09:40', block: last ? last.block : 'Sabah', types: last ? last.types.slice() : [] }); commit(); },
     delSlot: (el) => {
-      if (!confirm('Bu ders saati silinsin mi? Sonraki saatlerin numarası kayar; programı yeniden oluşturman gerekir.')) return;
-      readSettingsForm(); state.settings.slots[el.dataset.kind].splice(+el.dataset.s, 1);
+      readSettingsForm();
+      ask('Bu ders saati silinsin mi? Sonraki saatlerin numarası kayar, öğretmenlerin kapalı saatleri sıfırlanır; programı yeniden oluşturman gerekir.', () => {
+      state.settings.slots[el.dataset.kind].splice(+el.dataset.s, 1);
       (state.teachers || []).forEach((t) => { t.blocked = []; });
       commit();
+      }, 'Sil');
     },
   };
 
