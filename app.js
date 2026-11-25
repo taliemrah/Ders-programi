@@ -577,7 +577,7 @@
         }
         h += '</tr>';
       }
-      return h + '</tbody></table></div>';
+      return h + '</tbody></table><div class="pmade">Made by Emrah Tali</div></div>';
     };
     let html = '';
     if (kind === 'one') {
