@@ -142,6 +142,7 @@
         <nav class="tabs">${tabs.map(([k, n]) => `<button class="tab ${ui.tab === k ? 'on' : ''}" data-act="tab" data-v="${k}">${n}</button>`).join('')}</nav>
       </header>
       <main>${({ program: viewProgram, teachers: viewTeachers, groups: viewGroups, lessons: viewLessons, settings: viewSettings })[ui.tab]()}</main>
+      <div class="madeby">Made by Emrah Tali</div>
       ${ui.modal ? `<div class="overlay" data-act="overlay"><div class="modal" role="dialog">${ui.modal.html}</div></div>` : ''}
     `;
     renderToast();
