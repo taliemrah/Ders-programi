@@ -110,6 +110,7 @@ table.grid th, table.grid td { border: 1px solid var(--line); text-align: center
 table.grid thead th { background: #f8fafc; font-size: 12px; font-weight: 600; padding: 4px 2px; color: var(--muted); }
 table.grid thead th .no { display: block; color: var(--ink); font-size: 13px; }
 table.grid thead th .t2 { display: block; color: #98a2b3; font-weight: 500; }
+table.grid th.day .dshort { display: none; }
 table.grid th.day { width: 98px; text-align: left; padding: 6px 8px; font-size: 13px; color: var(--ink); background: #f8fafc; }
 table.grid td { height: 58px; vertical-align: middle; font-size: 12px; position: relative; }
 td.cell { cursor: pointer; }
@@ -183,6 +184,16 @@ table.slots input[type=text] { width: 130px; }
 .hide-narrow { }
 @media (max-width: 699px) {
   main { padding: 12px; }
+  /* Telefonda tablo: dar hücreler, gün sütunu sabit */
+  table.grid { min-width: 720px; }
+  table.grid th.day .dlong { display: none; }
+  table.grid th.day .dshort { display: inline; }
+  table.grid th.day { width: 48px; padding: 4px 6px; font-size: 12px; position: sticky; left: 0; z-index: 2; box-shadow: 1px 0 0 var(--line); }
+  table.grid td { height: 52px; font-size: 11px; }
+  table.grid thead th { font-size: 10.5px; padding: 3px 1px; }
+  .les { margin: 2px; padding: 3px 2px; border-radius: 6px; }
+  .les b { font-size: 11px; }
+  .les span { font-size: 10px; }
   .hide-narrow { display: none !important; }
 }
 

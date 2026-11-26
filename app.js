@@ -14,7 +14,7 @@
   const ui = {
     tab: state.schedule ? 'program' : 'program',
     viewMode: 'teacher', viewId: null,
-    layout: window.innerWidth < 700 ? 'list' : 'table',
+    layout: 'table',
     sel: null,        // seçili yerleşim indeksi
     solving: null,    // {p}
     keepLocked: true,
@@ -189,7 +189,7 @@
     const cur = list.find((x) => x.id === ui.viewId);
     h += `<div class="card">
       <div class="row" style="margin-bottom:12px">
-        <div class="seg"><button class="${ui.viewMode === 'teacher' ? 'on' : ''}" data-act="mode" data-v="teacher">Öğretmen</button><button class="${ui.viewMode === 'group' ? 'on' : ''}" data-act="mode" data-v="group">Grup</button></div>
+        <div class="seg"><button class="${ui.viewMode === 'teacher' ? 'on' : ''}" data-act="mode" data-v="teacher">Öğretmen</button><button class="${ui.viewMode === 'group' ? 'on' : ''}" data-act="mode" data-v="group">Sınıf</button></div>
         <select data-act="pick" style="flex:1;min-width:160px">${list.map((x) => `<option value="${x.id}" ${x.id === ui.viewId ? 'selected' : ''}>${esc(x.name)}${ui.viewMode === 'teacher' ? ' – ' + esc(x.branch || '') : ''}</option>`).join('')}</select>
         <div class="seg"><button class="${ui.layout === 'list' ? 'on' : ''}" data-act="layout" data-v="list">Liste</button><button class="${ui.layout === 'table' ? 'on' : ''}" data-act="layout" data-v="table">Tablo</button></div>
       </div>
@@ -266,7 +266,7 @@
       const slots = slotsOf(d.id);
       const occ = (s) => map.has(key(d.id, s));
       const gaps = new Set(gapsFor(occ, d.id));
-      h += `<tr><th class="day">${esc(d.name)}</th>`;
+      h += `<tr><th class="day"><span class="dlong">${esc(d.name)}</span><span class="dshort">${esc(shortDay(d.name))}</span></th>`;
       for (let s = 0; s < maxS; s++) {
         const sl = slots[s];
         if (!sl) { h += '<td class="none"></td>'; continue; }
@@ -372,7 +372,7 @@
       if (m.type === 'progress') { ui.solving.p = m.p; const bar = document.querySelector('.progress > div'); if (bar) bar.style.width = Math.round(m.p * 100) + '%'; }
       else if (m.type === 'done') {
         state.schedule = { placements: DP.resultToPlacements(m.result, meta), generatedAt: new Date().toISOString(), stale: false };
-        ui.solving = null; save(); render();
+        ui.solving = null; ui.layout = 'table'; save(); render();
         const st = stats();
         const g = st.tRows.reduce((a, r) => a + r.gaps, 0);
         toast(st.unplaced.length ? `${st.unplaced.length} ders saati yerleşemedi, rapora bak.` : `Program hazır. Öğretmenlerde toplam ${g} boş saat.`, st.unplaced.length ? 'bad' : 'ok');
