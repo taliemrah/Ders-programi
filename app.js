@@ -408,7 +408,7 @@
   }
   function teacherModal(id) {
     const t = id ? teacher(id) : { name: '', branch: '', dayCount: 4, days: activeDays().map((d) => d.id), blocked: [] };
-    const branches = [...new Set(state.teachers.map((x) => x.branch).filter(Boolean))];
+    const branches = [...new Set(state.teachers.map((x) => x.branch).concat(DP.SUBJECTS).filter(Boolean))].sort(trCmp);
     const days = activeDays();
     const maxS = Math.max(...days.map((d) => slotsOf(d.id).length));
     let grid = '<div class="avail"><table><tr><th></th>' + Array.from({ length: maxS }, (_, s) => `<th>${s + 1}</th>`).join('') + '</tr>';
@@ -487,7 +487,7 @@
   }
   function lessonModal(id, groupId) {
     const l = id ? lesson(id) : { groupId: groupId || (state.groups[0] || {}).id, subject: '', teacherId: '', hours: 2, maxPerDay: 2 };
-    const subjects = [...new Set(state.lessons.map((x) => x.subject).concat(state.teachers.map((t) => t.branch)).filter(Boolean))].sort(trCmp);
+    const subjects = [...new Set(state.lessons.map((x) => x.subject).concat(state.teachers.map((t) => t.branch), DP.SUBJECTS).filter(Boolean))].sort(trCmp);
     const ts = state.teachers.slice().sort((a, b) => trCmp(a.name, b.name));
     return `<h2>${id ? 'Dersi düzenle' : 'Ders ekle'}</h2><form id="f">
       <label class="field"><span>Grup</span><select name="groupId">${state.groups.slice().sort((a, b) => trCmp(a.name, b.name)).map((g) => `<option value="${g.id}" ${g.id === l.groupId ? 'selected' : ''}>${esc(g.name)}</option>`).join('')}</select></label>

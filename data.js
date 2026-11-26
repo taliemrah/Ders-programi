@@ -6,6 +6,14 @@
     { id: 'ilk', name: 'İlköğretim' },
   ];
 
+  // Dershanelerde okutulan dersler (öneri listesi; serbest yazım da yapılabilir)
+  const SUBJECTS = [
+    'Matematik', 'Geometri', 'Fizik', 'Kimya', 'Biyoloji', 'Fen Bilimleri',
+    'Türkçe', 'Türk Dili ve Edebiyatı', 'Edebiyat', 'Tarih', 'T.C. İnkılap Tarihi ve Atatürkçülük',
+    'Coğrafya', 'Sosyal Bilgiler', 'Felsefe', 'Mantık', 'Psikoloji', 'Sosyoloji',
+    'Din Kültürü ve Ahlak Bilgisi', 'İngilizce', 'Almanca', 'Paragraf', 'Problemler',
+  ];
+
   function uid() { return Math.random().toString(36).slice(2, 9); }
 
   function defaultSettings() {
@@ -70,6 +78,9 @@
       T('Örnek Edebiyat', 'Türk Dili ve Edebiyatı', 4, allDays),
       T('Örnek Fen Bilgisi', 'Fen Bilimleri', 3, allDays),
       T('Örnek İlköğretim Mat.', 'Matematik', 3, allDays),
+      T('Örnek Tarih', 'Tarih', 3, allDays),
+      T('Örnek Coğrafya', 'Coğrafya', 3, allDays),
+      T('Örnek Sosyal Bilgiler', 'Sosyal Bilgiler', 2, allDays),
     ];
     const tid = (n) => teachers.find((t) => t.name === n).id;
     const G = (name, type) => ({ id: uid(), name, type });
@@ -120,6 +131,17 @@
       L(g, 'Matematik', 'Örnek İlköğretim Mat.', 4);
       L(g, 'Fen Bilimleri', 'Örnek Fen Bilgisi', 3);
       L(g, 'Türkçe', 'Örnek Edebiyat', 2);
+    }
+    // Sözel dersler
+    L('8A', 'T.C. İnkılap Tarihi ve Atatürkçülük', 'Örnek Sosyal Bilgiler', 2);
+    L('7A', 'Sosyal Bilgiler', 'Örnek Sosyal Bilgiler', 2);
+    for (const g of ['13G', '13H', '13 SAY3']) {
+      L(g, 'Tarih', 'Örnek Tarih', 2);
+      L(g, 'Coğrafya', 'Örnek Coğrafya', 2);
+    }
+    for (const g of ['12J', '12H', '11G', '11I', '11 SAY3', '10. Sınıf', '9. Sınıf']) {
+      L(g, 'Tarih', 'Örnek Tarih', 1);
+      L(g, 'Coğrafya', 'Örnek Coğrafya', 1);
     }
     return { version: 1, settings, teachers, groups, lessons, schedule: null };
   }
@@ -177,7 +199,7 @@
     }));
   }
 
-  const api = { TYPES, uid, defaultSettings, sampleState, emptyState, buildSolverInput, resultToPlacements };
+  const api = { TYPES, SUBJECTS, uid, defaultSettings, sampleState, emptyState, buildSolverInput, resultToPlacements };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else window.DP = api;
 })();
